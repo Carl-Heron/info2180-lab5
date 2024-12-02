@@ -1,26 +1,43 @@
 window.onload = () => {
-    const lookupBtn = document.querySelector("#lookup"); // Button with id "lookup"
-    const resultDiv = document.querySelector("#result"); // Div to display results
-    const countryInput = document.querySelector("#country"); // Input field for country name
+    const lookupBtn = document.querySelector("#lookup");
+    const lookupCitiesBtn = document.querySelector("#lookup-cities");
+    const resultDiv = document.querySelector("#result");
 
-    // Add click event listener to the Lookup button
-    lookupBtn.addEventListener("click", () => {
-        const query = countryInput.value.trim(); // Get user input
-
-        // Fetch data from world.php via AJAX
-        fetch(`world.php?country=${query}`)
+    function fetchData(query, lookupType) {
+        resultDiv.innerHTML = "<p>Loading...</p>"; // Show loading message
+        fetch(`world.php?country=${query}&lookup=${lookupType}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    throw new Error("Network response was not ok");
                 }
-                return response.text(); // Parse response as text
+                return response.text();
             })
             .then(data => {
-                resultDiv.innerHTML = data || "<p>No results found.</p>"; // Display data
+                resultDiv.innerHTML = data; // Render the returned HTML
             })
             .catch(error => {
                 console.error("Fetch error:", error);
-                resultDiv.innerHTML = `<p>Error fetching data: ${error.message}</p>`;
+                resultDiv.innerHTML = "<p>Error fetching data.</p>";
             });
+    }
+
+    // Event listener for country lookup
+    lookupBtn.addEventListener("click", () => {
+        const query = document.querySelector("#country").value.trim();
+        if (query === "") {
+            resultDiv.innerHTML = "<p>Please enter a country name.</p>";
+            return;
+        }
+        fetchData(query, "country");
+    });
+
+    // Event listener for city lookup
+    lookupCitiesBtn.addEventListener("click", () => {
+        const query = document.querySelector("#country").value.trim();
+        if (query === "") {
+            resultDiv.innerHTML = "<p>Please enter a country name.</p>";
+            return;
+        }
+        fetchData(query, "cities");
     });
 };
